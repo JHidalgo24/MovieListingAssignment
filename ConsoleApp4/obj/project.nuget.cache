@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "59mLk68kvtR+ntY+z5shLfwxtTvs2TCSnau+3mLF2LQOocy7rjCllRh67kv3pvre1jyqEPrh9iSSEZ3a5t9xWg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\justi\\RiderProjects\\ConsoleApp4\\ConsoleApp4\\ConsoleApp4.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\justi\\.nuget\\packages\\csvhelper\\27.1.1\\csvhelper.27.1.1.nupkg.sha512",
+    "C:\\Users\\justi\\.nuget\\packages\\nlog\\5.0.0-preview.1\\nlog.5.0.0-preview.1.nupkg.sha512"
+  ],
+  "logs": []
+}
