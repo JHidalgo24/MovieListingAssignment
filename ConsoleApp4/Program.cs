@@ -9,14 +9,12 @@ using CsvHelper.TypeConversion;
 using System.Linq;
 using NLog;
 
-
 namespace ConsoleApp4
 {
     class Program
     {
         private static void Main(string[] args)
         {
-            
             int number = 1;
             List<Movie> temp;
             string filmPicked;
@@ -33,22 +31,25 @@ namespace ConsoleApp4
                         AddMovie(lastId);
                         break;
                     case 2:
-                        int firstNumber,secondNumber;
-                        temp = ReturnFilmList();
-                        System.Console.WriteLine($"There are {temp.Count()} movies in file from where to where do you want to see");
-                        Console.WriteLine($"What is the first number from 1 - {temp.Count}");
-                        firstNumber = ValueGetter(); 
-                        Console.WriteLine($"What is the second number from {firstNumber} - {temp.Count}");
-                        secondNumber = ValueGetter();
-                        while(secondNumber < firstNumber){
+                        System.Console.WriteLine(
+                            $"There are {ReturnFilmList().Count} movies in file from where to where do you want to see");
+                        Console.WriteLine($"What is the first number from 1 - {ReturnFilmList().Count}");
+                        int firstNumber = ValueGetter();
+                        Console.WriteLine($"What is the second number from {firstNumber} - {ReturnFilmList().Count}");
+                        int secondNumber = ValueGetter();
+                        while (secondNumber < firstNumber)
+                        {
                             System.Console.WriteLine("Second value can't be smaller!");
-                            secondNumber = ValueGetter();};
-                        ListFilms(temp,firstNumber,secondNumber);
+                            secondNumber = ValueGetter();
+                        }
+
+                        ;
+                        ListFilms(firstNumber, secondNumber);
                         break;
                     case 3:
                         Console.WriteLine("What movie do you want to look up?(Press Enter for all)");
                         filmPicked = Console.ReadLine();
-                        SearchMovie(ReturnFilmList(),filmPicked);
+                        SearchMovie(filmPicked);
                         break;
                     case 4:
                         Console.WriteLine("Goodbye!");
@@ -60,54 +61,100 @@ namespace ConsoleApp4
             }
         }
 
-        
-        
         private static void PrintMenu()
         {
             Console.WriteLine("What do you want to do?\n1.)Add movie\n2.)List Movies\n3.)Search Movie\n4.)Exit)");
-            
         }
 
-        private static void ListFilms(List<Movie> films,int firstNum, int secondNum)
+        private static void ListFilms(int firstNum, int secondNum)
         {
             List<Movie> temp = ReturnFilmList();
 
-            for (int i = firstNum-1; i<=secondNum-1; i++)
+            for (int i = firstNum - 1; i <= secondNum - 1; i++)
             {
                 Console.WriteLine(temp[i]);
             }
         }
 
-        private static void AddMovie(int id){
-            
-        }//figure out how to add movies
-
-        private static void SearchMovie(List<Movie> film, string filmPicked)
+        private static void AddMovie(int id)
         {
-            List<Movie> temp = film;
+            try
+            {
+                string titlePicked = "", genresPicked = "";
+                int genresTotal;
+                Console.WriteLine("What is the title of the film");
+                titlePicked = Console.ReadLine();
+                while (DuplicateChecker(titlePicked))
+                {
+                    Console.WriteLine("Sorry the film is already in the list enter a new one");
+                    titlePicked = Console.ReadLine();
+                }
+
+                Console.WriteLine("How many genres do you want to add?");
+                genresTotal = ValueGetter();
+                for (int i = 0; i < genresTotal; i++)
+                {
+                    Console.WriteLine($"What is the {i + 1} genre?");
+                    genresPicked += Console.ReadLine();
+                }
+
+                var records = new List<Movie> {new Movie {Id = id + 1, title = titlePicked, genres = genresPicked},};
+                var config = new CsvConfiguration(CultureInfo.InvariantCulture) {HasHeaderRecord = false,};
+                using (var stream = File.Open("C:\\Users\\justi\\RiderProjects\\ConsoleApp4\\ConsoleApp4\\movies.csv",
+                    FileMode.Append))
+                using (var writer = new StreamWriter(stream))
+                using (var csv = new CsvWriter(writer, config))
+                {
+                    csv.WriteRecords(records);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to write to file!");
+            }
+        }
+
+        private static void SearchMovie(string filmPicked)
+        {
+            List<Movie> temp = ReturnFilmList();
             foreach (Movie movies in temp)
             {
-                String currentMovie = movies.title;
-                if (currentMovie.Contains(filmPicked))
+                String currentMovie = movies.title.ToLower();
+                if (currentMovie.Contains(filmPicked.ToLower()))
                 {
                     Console.WriteLine(movies);
                 }
             }
         }
 
+        private static Boolean DuplicateChecker(string filmPicked)
+        {
+            bool contained = false;
+            List<Movie> temp = ReturnFilmList();
+            foreach (Movie movies in temp)
+            {
+                String currentMovie = movies.title.ToLower();
+                if (currentMovie.Contains(filmPicked.ToLower()))
+                {
+                    contained = true;
+                }
+            }
+
+            return contained;
+        }
+
         private static List<Movie> ReturnFilmList()
         {
-            List<Movie> movies = new List<Movie>();
+            List<Movie> movies;
             try
             {
-                using (var streamReader = new StreamReader("C:\\Users\\justi\\RiderProjects\\ConsoleApp4\\ConsoleApp4\\movies.csv"))
+                using (var streamReader =
+                    new StreamReader("C:\\Users\\justi\\RiderProjects\\ConsoleApp4\\ConsoleApp4\\movies.csv"))
                 using (var csv = new CsvReader(streamReader, CultureInfo.InvariantCulture))
                 {
                     var records = csv.GetRecords<Movie>().ToList();
                     movies = records;
-                    
                 }
-                
             }
             catch (Exception e)
             {
@@ -130,11 +177,8 @@ namespace ConsoleApp4
                 option = Console.ReadLine();
                 success = Int32.TryParse(option, out number);
             }
+
             return number;
         }
     }
-
-    
-
-    
 }
