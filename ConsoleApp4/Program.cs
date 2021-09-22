@@ -13,11 +13,10 @@ namespace ConsoleApp4
 {
     class Program
     {
+        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         private static void Main(string[] args)
         {
             int number = 1;
-            List<Movie> temp;
-            string filmPicked;
             int lastId = 0;
             while (number != 4)
             {
@@ -26,13 +25,12 @@ namespace ConsoleApp4
                 switch (number)
                 {
                     case 1:
-                        temp = ReturnFilmList();
+                        var temp = ReturnFilmList();
                         lastId = temp[temp.Count - 1].Id;
                         AddMovie(lastId);
                         break;
                     case 2:
-                        System.Console.WriteLine(
-                            $"There are {ReturnFilmList().Count} movies in file from where to where do you want to see");
+                        System.Console.WriteLine($"There are {ReturnFilmList().Count} movies in file what range do you wish to see?");
                         Console.WriteLine($"What is the first number from 1 - {ReturnFilmList().Count}");
                         int firstNumber = ValueGetter();
                         Console.WriteLine($"What is the second number from {firstNumber} - {ReturnFilmList().Count}");
@@ -42,13 +40,11 @@ namespace ConsoleApp4
                             System.Console.WriteLine("Second value can't be smaller!");
                             secondNumber = ValueGetter();
                         }
-
-                        ;
                         ListFilms(firstNumber, secondNumber);
                         break;
                     case 3:
                         Console.WriteLine("What movie do you want to look up?(Press Enter for all)");
-                        filmPicked = Console.ReadLine();
+                        string filmPicked = Console.ReadLine();
                         SearchMovie(filmPicked);
                         break;
                     case 4:
@@ -116,18 +112,27 @@ namespace ConsoleApp4
 
         private static void SearchMovie(string filmPicked)
         {
-            List<Movie> temp = ReturnFilmList();
-            foreach (Movie movies in temp)
+            try
             {
-                String currentMovie = movies.title.ToLower();
-                if (currentMovie.Contains(filmPicked.ToLower()))
+                List<Movie> temp = ReturnFilmList();
+                foreach (Movie movies in temp)
                 {
-                    Console.WriteLine(movies);
+                    String currentMovie = movies.title.ToLower();
+                    if (currentMovie.Contains(filmPicked.ToLower()))
+                    {
+                        Console.WriteLine(movies);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to search film");
+                throw;
+            }
+            
         }
 
-        private static Boolean DuplicateChecker(string filmPicked)
+        private static bool DuplicateChecker(string filmPicked)
         {
             bool contained = false;
             List<Movie> temp = ReturnFilmList();
